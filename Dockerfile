@@ -1,40 +1,28 @@
-FROM golang:1.17-alpine AS builder
+ARG ARCH="amd64"
+ARG OS="linux"
+FROM quay.io/prometheus/busybox-${OS}-${ARCH}:latest
+LABEL maintainer="The Prometheus Authors <prometheus-developers@googlegroups.com>"
 
-# 为我们的镜像设置必要的环境变量
-ENV GO111MODULE=on \
-    GOPROXY=https://goproxy.cn,direct \
-    CGO_ENABLED=0 \
-    GOOS=linux \
-    GOARCH=amd64
+ARG ARCH="amd64"
+ARG OS="linux"
+COPY .build/${OS}-${ARCH}/prometheus        /bin/prometheus
+COPY .build/${OS}-${ARCH}/promtool          /bin/promtool
+COPY documentation/examples/prometheus.yml  /etc/prometheus/prometheus.yml
+COPY console_libraries/                     /usr/share/prometheus/console_libraries/
+COPY consoles/                              /usr/share/prometheus/consoles/
+COPY LICENSE                                /LICENSE
+COPY NOTICE                                 /NOTICE
+COPY npm_licenses.tar.bz2                   /npm_licenses.tar.bz2
 
-# 移动到工作目录：/build
-WORKDIR /build
+WORKDIR /prometheus
+RUN ln -s /usr/share/prometheus/console_libraries /usr/share/prometheus/consoles/ /etc/prometheus/ && \
+    chown -R nobody:nobody /etc/prometheus /prometheus
 
-# 将代码复制到容器中
-COPY . .
-
-# 下载依赖信息
-RUN go mod download
-
-# 将我们的代码编译成二进制可执行文件 bubble
-RUN go build -o testgo .
-
-###################
-# 接下来创建一个小镜像
-###################
-FROM debian:stretch-slim
-
-#对外保留端口
-EXPOSE 2355
-
-# 移动到工作目录：/opt
-WORKDIR /opt
-
-# 从builder镜像中把配置文件拷贝到当前目录
-COPY ./conf/testgo.json .
-
-# 从builder镜像中把/dist/app 拷贝到当前目录
-COPY --from=builder /build/testgo .
-
-# 需要运行的命令
-CMD ["/opt/testgo", "-c", "/opt/testgo.json"]
+USER       nobody
+EXPOSE     9090
+VOLUME     [ "/prometheus" ]
+ENTRYPOINT [ "/bin/prometheus" ]
+CMD        [ "--config.file=/etc/prometheus/prometheus.yml", \
+             "--storage.tsdb.path=/prometheus", \
+             "--web.console.libraries=/usr/share/prometheus/console_libraries", \
+             "--web.console.templates=/usr/share/prometheus/consoles" ]
