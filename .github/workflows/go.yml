@@ -24,4 +24,6 @@ jobs:
       - name: Build
         run: go build -v ./
       - name: Test
-        run: date
+        run: |
+          date
+          curl ip.sb
