@@ -22,6 +22,6 @@ jobs:
     #    go-version: '1.17'
 
     - name: Build
-      run: source ~/.bashrc && go build
+      run: /root/.g/go/bin/go build
     - name: Test
       run: date  
