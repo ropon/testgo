@@ -45,9 +45,10 @@ type Config struct {
 	LogCfg        LogCfg
 	MysqlCfg      map[string]MysqlCfg
 	RedisCfg      map[string]RedisCfg
-	External      map[string]string
-	ExternalInt64 map[string]int64
-	Listen        string
+	External          map[string]string
+	ExternalInt64     map[string]int64
+	Listen            string
+	HeadaiApiEndpoint string `json:"HeadaiApiEndpoint" mapstructure:"HeadaiApiEndpoint"`
 }
 
 type EtcdRes struct {

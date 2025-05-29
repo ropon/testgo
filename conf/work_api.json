@@ -23,7 +23,8 @@
     "Key1": "Val1",
     "work_api1": "127.0.0.1:2346",
     "work_api2": "127.0.0.1:2347",
-    "JaegerAgentAddr": "192.168.1.210:6831"
+    "JaegerAgentAddr": "192.168.1.210:6831",
+    "HeadaiApiEndpoint": "http://your-headai-api-endpoint.com/recommend"
   },
   "ExternalInt64": {
     "Key2": 66
